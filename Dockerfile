@@ -37,7 +37,8 @@ RUN cp .env.example .env \
     && sed -i 's/APP_DEBUG=true/APP_DEBUG=false/' .env \
     && sed -i 's/SESSION_DRIVER=database/SESSION_DRIVER=file/' .env \
     && sed -i 's/CACHE_STORE=database/CACHE_STORE=file/' .env \
-    && sed -i 's/QUEUE_CONNECTION=database/QUEUE_CONNECTION=sync/' .env
+    && sed -i 's/QUEUE_CONNECTION=database/QUEUE_CONNECTION=sync/' .env \
+    && php artisan key:generate
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html

@@ -1,11 +1,7 @@
 #!/bin/bash
 set -e
 
-# Setup .env if not exists
-if [ ! -f .env ]; then
-    cp .env.example .env
-    php artisan key:generate
-fi
+# No need to copy .env here as it is done in Dockerfile.
 
 # Ensure SQLite database exists
 mkdir -p database
