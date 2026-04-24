@@ -28,17 +28,24 @@ ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Enable .htaccess / AllowOverride
+RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
-# Setup environment & database
+# Setup production .env with file-based drivers
 RUN cp .env.example .env \
-    && mkdir -p database \
-    && touch database/database.sqlite \
-    && php artisan key:generate \
-    && php artisan migrate --force
+    && sed -i 's/APP_ENV=local/APP_ENV=production/' .env \
+    && sed -i 's/APP_DEBUG=true/APP_DEBUG=false/' .env \
+    && sed -i 's/SESSION_DRIVER=database/SESSION_DRIVER=file/' .env \
+    && sed -i 's/CACHE_STORE=database/CACHE_STORE=file/' .env \
+    && sed -i 's/QUEUE_CONNECTION=database/QUEUE_CONNECTION=sync/' .env
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 775 storage bootstrap/cache
+
+# Make entrypoint executable
+RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
