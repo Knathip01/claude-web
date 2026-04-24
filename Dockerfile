@@ -3,7 +3,7 @@ FROM php:8.3-apache
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git curl unzip libzip-dev libpng-dev libonig-dev libxml2-dev \
-    nodejs npm sqlite3 \
+    nodejs npm sqlite3 libsqlite3-dev \
     && docker-php-ext-install pdo pdo_mysql pdo_sqlite zip mbstring exif pcntl bcmath gd \
     && a2enmod rewrite \
     && rm -rf /var/lib/apt/lists/*
